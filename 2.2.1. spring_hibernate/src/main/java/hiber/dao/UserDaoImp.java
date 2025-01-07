@@ -9,12 +9,17 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
+import java.util.Optional;
 
 @Repository
 public class UserDaoImp implements UserDao {
 
+   private final SessionFactory sessionFactory;
+
    @Autowired
-   private SessionFactory sessionFactory;
+   public UserDaoImp(SessionFactory sessionFactory) {
+      this.sessionFactory = sessionFactory;
+   }
 
    @Override
    public void add(User user) {
@@ -29,7 +34,7 @@ public class UserDaoImp implements UserDao {
    }
 
    @Override
-   public User getUserByCarModelAndSeries(String model, int series) {
+   public Optional<User> getUserByCarModelAndSeries(String model, int series) {
       String hql = "FROM User u "
               + "JOIN FETCH u.car c "
               + "WHERE c.model = :model AND c.series = :series";
@@ -42,10 +47,9 @@ public class UserDaoImp implements UserDao {
       List<User> resultList = query.getResultList();
 
       if (!resultList.isEmpty()) {
-         return resultList.get(0);
+         return Optional.of(resultList.get(0));
       }
-
-      return null;
+      return Optional.empty();
    }
 
 }
